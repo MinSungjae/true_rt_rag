@@ -1,0 +1,5 @@
+##### TAG DEFINITION OF ENVIRONMENT #####
+# [ID, SIZE(m), X(m), Y(m), Z(m), psi(Deg)]
+TAG_TRUE_RT:
+  TAGS:
+    - [256, 0.16, 0, 0, 0, 0.0]
