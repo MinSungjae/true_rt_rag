@@ -124,6 +124,11 @@ bool TRUE_RT_TAG::getTrueRT()
 
     tf2::Transform global2tag_tf = tag_rts._transforms.at(config_idx);
 
+    geometry_msgs::PoseStamped global2tag_geo;
+    tf2::toMsg(global2tag_tf, global2tag_geo.pose);
+    global2tag_geo.header.stamp = tag_detection.header.stamp;
+    true_rt_tag_pub.publish(global2tag_geo);
+
     // Get transformation of camera to closest tag
     geometry_msgs::Pose cam2tag_pose = tag_detection.detections.at(min_idx).pose.pose.pose;
     tf2::Transform cam2tag_tf;
