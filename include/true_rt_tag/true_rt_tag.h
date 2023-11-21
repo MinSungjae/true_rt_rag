@@ -31,7 +31,8 @@ private:
     ros::NodeHandle* _nh;
     ros::Rate _rate;
 
-    bool initialized = false;
+    bool tag_config_loaded = false;
+    bool camera_transform_found = false;
 
     std::string package_path;
     std::string tag_config_name;
@@ -40,16 +41,17 @@ private:
 
     void tag_detections_cb(apriltag_ros::AprilTagDetectionArray msg);
     void tf_static_cb(tf2_msgs::TFMessage msg);
+
+    tf2::Transform orientation_correction;
     
 protected:
     ros::Publisher true_rt_tag_pub;
+    ros::Publisher global_tag_pose_pub;
 
     ros::Subscriber tag_detections_sub;
     ros::Subscriber tf_static_sub;
 
-    std::string robot_frame_name;
-    std::string world_frame_name;
-    std::string image_frame_name, camera_frame_name;
+    std::string world_frame_name, camera_frame_name, image_frame_name;
     geometry_msgs::TransformStamped cam2optical_geo;
     tf2::Transform cam2optical_tf;
 

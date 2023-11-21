@@ -1,7 +1,15 @@
 <launch>
     <arg name="tag_file_name" default="n1_room117_v1"/>
 
+    <arg name="world_frame_name" default="world"/>
+    <arg name="camera_frame_name" default="camera_link"/>
+    <arg name="image_frame_name" default="camera_color_optical_frame"/>
+
+
     <node name="true_rt_tag_node" pkg="true_rt_tag" type="true_rt_tag_node" output="screen">
         <param name="tag_config_name" value="$(arg tag_file_name)"/>
+        <param name="world_frame_name" value="$(arg world_frame_name)"/>
+        <param name="camera_frame_name" value="$(arg camera_frame_name)"/>
+        <param name="image_frame_name" value="$(arg image_frame_name)"/>
     </node>
 </launch>
