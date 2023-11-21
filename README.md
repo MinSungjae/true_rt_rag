@@ -9,7 +9,7 @@ you have to install both packages. Apriltag_ros depend on Apriltag.
 
 [APRILTAG_ROS](https://github.com/AprilRobotics/apriltag_ros)
 
-## Install
+## Installiation
 
 Clone TRUE_RT_TAG package to you_ws/src to install
 ```
