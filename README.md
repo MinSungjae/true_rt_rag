@@ -2,8 +2,9 @@
 
 ## Dependencies
 
-To install the dependent packages please follow their instructions
-you have to install both packages. Apriltag_ros depend on Apriltag.
+To install the dependent packages, please follow their instructions. </br>
+
+You have to install both packages. Apriltag_ros depends on Apriltag.
 
 [APRILTAG](https://github.com/AprilRobotics/apriltag)
 
