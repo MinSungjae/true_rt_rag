@@ -81,8 +81,9 @@ bool TRUE_RT_TAG::loadTagConfig(std::string file_name)
         return false;
 
     }
+    ROS_INFO_STREAM(node.size());
 
-    for(size_t tag = 0; tag < node.size(); tag++)
+    for(size_t tag = 0; tag < node["TAG_TRUE_RT"]["TAGS"].size(); tag++)
     {
         int32_t tag_rt_idx = node["TAG_TRUE_RT"]["TAGS"][tag][0].as<int32_t>();
         double tag_rt_size = node["TAG_TRUE_RT"]["TAGS"][tag][1].as<double>();
@@ -106,7 +107,7 @@ bool TRUE_RT_TAG::loadTagConfig(std::string file_name)
         tag_rts._sizes.push_back(tag_rt_size);
         tag_rts._transforms.push_back(tag_rt);
 
-        ROS_INFO_STREAM("Tag info about " << tag_rt_idx << " located at " << tag_rt.getOrigin().getY() << " are loaded successfully");
+        ROS_INFO_STREAM("Tag info about " << tag_rt_idx << " is loaded successfully");
     }
 
     return true;
