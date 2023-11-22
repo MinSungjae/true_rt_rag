@@ -5,6 +5,16 @@
     <arg name="camera_frame_name" default="camera_link"/>
     <arg name="image_frame_name" default="camera_color_optical_frame"/>
 
+    <arg name="with_apriltag_ros" default="false"/>
+    <arg name="camera_name" default="camera"/>
+    <arg name="image_topic" default="color/image_raw"/>
+
+    <group if="$(arg with_apriltag_ros)">
+        <include file="$(find apriltag_ros)/launch/continuous_detection.launch">
+            <arg name="camera_name" value="$(arg camera_name)"/>
+            <arg name="image_topic" value="$(arg image_topic)"/>
+        </include>
+    </group>
 
     <node name="true_rt_tag_node" pkg="true_rt_tag" type="true_rt_tag_node" output="screen">
         <param name="tag_config_name" value="$(arg tag_file_name)"/>
@@ -12,4 +22,5 @@
         <param name="camera_frame_name" value="$(arg camera_frame_name)"/>
         <param name="image_frame_name" value="$(arg image_frame_name)"/>
     </node>
+
 </launch>
