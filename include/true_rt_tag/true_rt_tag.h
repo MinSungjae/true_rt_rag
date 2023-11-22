@@ -56,6 +56,7 @@ protected:
 
     std::vector<tf2_ros::TransformBroadcaster> tf_broadcasters;
     std::vector<geometry_msgs::TransformStamped> tag_transforms;
+    tf2_ros::TransformBroadcaster true_rt_tf_broadcaster;
 
     std::string world_frame_name, camera_frame_name, image_frame_name;
     geometry_msgs::TransformStamped cam2optical_geo;

@@ -203,12 +203,22 @@ bool TRUE_RT_TAG::getTrueRT()
     // global2tag_tf*orientation_correction //? tag from {world}
     tf2::Transform global2_cam_tf = global2tag_tf*optical2tag_tf.inverse()*cam2optical_tf.inverse();
 
-
     geometry_msgs::PoseStamped global2cam_pose;
     tf2::toMsg(global2_cam_tf, global2cam_pose.pose);
     global2cam_pose.header.stamp = tag_detection.header.stamp;
     global2cam_pose.header.frame_id = "world";
     global_tag_pose_pub.publish(global2cam_pose);
+
+    geometry_msgs::TransformStamped global2_cam_geo;
+    global2_cam_geo.header.frame_id = "world";
+    global2_cam_geo.header.stamp = ros::Time::now();
+    global2_cam_geo.child_frame_id = camera_frame_name;
+    global2_cam_geo.transform.translation.x = global2cam_pose.pose.position.x;
+    global2_cam_geo.transform.translation.y = global2cam_pose.pose.position.y;
+    global2_cam_geo.transform.translation.z = global2cam_pose.pose.position.z;
+    global2_cam_geo.transform.rotation = global2cam_pose.pose.orientation;
+    true_rt_tf_broadcaster.sendTransform(global2_cam_geo);
+    
 
     ROS_INFO_STREAM("Global pose of camera: " << global2cam_pose);
 
