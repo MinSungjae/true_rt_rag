@@ -22,8 +22,6 @@ public:
     std::vector<int32_t> _idxs;
     std::vector<double> _sizes;
     std::vector<tf2::Transform> _transforms;
-    // std::vector<geometry_msgs::Point> _location;
-    // std::vector<double> _heading;
 };
 
 class TRUE_RT_TAG

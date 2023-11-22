@@ -195,10 +195,6 @@ bool TRUE_RT_TAG::getTrueRT()
 
     tf2::fromMsg(cam2optical_geo.transform, cam2optical_tf);
 
-    geometry_msgs::Pose orientation_pose;
-    // tf2::toMsg(orientation_correction, orientation_pose);
-    // ROS_INFO_STREAM(orientation_pose);
-
     // optical2tag_tf.inverse()*cam2optical_tf.inverse(); //? cam from {tag}
     // global2tag_tf*orientation_correction //? tag from {world}
     tf2::Transform global2_cam_tf = global2tag_tf*optical2tag_tf.inverse()*cam2optical_tf.inverse();
