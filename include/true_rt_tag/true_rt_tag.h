@@ -5,12 +5,13 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <apriltag_ros/AprilTagDetectionArray.h>
 
-
 #include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <tf2_msgs/TFMessage.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <string>
 #include <yaml-cpp/yaml.h>
 
 #define DEG2RAD(deg) deg/180.0*M_PI
@@ -33,11 +34,13 @@ private:
 
     bool tag_config_loaded = false;
     bool camera_transform_found = false;
+    bool tf_broadcaster_initialized = false;
 
     std::string package_path;
     std::string tag_config_name;
 
     bool loadTagConfig(std::string file_name);
+    bool initTFBroadcaster();
 
     void tag_detections_cb(apriltag_ros::AprilTagDetectionArray msg);
     void tf_static_cb(tf2_msgs::TFMessage msg);
@@ -51,6 +54,9 @@ protected:
     ros::Subscriber tag_detections_sub;
     ros::Subscriber tf_static_sub;
 
+    std::vector<tf2_ros::TransformBroadcaster> tf_broadcasters;
+    std::vector<geometry_msgs::TransformStamped> tag_transforms;
+
     std::string world_frame_name, camera_frame_name, image_frame_name;
     geometry_msgs::TransformStamped cam2optical_geo;
     tf2::Transform cam2optical_tf;
@@ -63,6 +69,6 @@ protected:
 public:
     TRUE_RT_TAG(ros::NodeHandle* nh, ros::Rate rate);
 
+    bool broadcastTagTF();
     bool getTrueRT();
-
 };

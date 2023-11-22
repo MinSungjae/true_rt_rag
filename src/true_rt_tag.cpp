@@ -4,32 +4,15 @@ TRUE_RT_TAG::TRUE_RT_TAG(ros::NodeHandle* nh, ros::Rate rate): _nh(nh), _rate(ra
 {
     package_path = ros::package::getPath("true_rt_tag");
 
-    true_rt_tag_pub = _nh->advertise<geometry_msgs::PoseStamped>("true_rt_tag_pose", 1);
-    global_tag_pose_pub = _nh->advertise<geometry_msgs::PoseStamped>("global_tag_pose", 1);
-
-    tag_detections_sub = _nh->subscribe("/tag_detections", 1, &TRUE_RT_TAG::tag_detections_cb, this);
-
     _nh->getParam(ros::this_node::getName()+ "/tag_config_name", tag_config_name);
     _nh->getParam(ros::this_node::getName()+ "/world_frame_name", world_frame_name);
     _nh->getParam(ros::this_node::getName()+ "/camera_frame_name", camera_frame_name);
     _nh->getParam(ros::this_node::getName()+ "/image_frame_name", image_frame_name);
 
-    if(loadTagConfig(tag_config_name))
-        tag_config_loaded = true;
+    true_rt_tag_pub = _nh->advertise<geometry_msgs::PoseStamped>("true_rt_tag_pose", 1);
+    global_tag_pose_pub = _nh->advertise<geometry_msgs::PoseStamped>(camera_frame_name, 1);
 
-    // Find tfs to find transform between camera mount frame and camera optical frame
-    tf2_ros::Buffer tfBuffer;
-    tf2_ros::TransformListener tfListener(tfBuffer);
-    try
-    {
-        cam2optical_geo = tfBuffer.lookupTransform(image_frame_name, camera_frame_name, ros::Time(0), ros::Duration(10));
-        camera_transform_found = true;
-    }
-    catch(tf2::TransformException &ex)
-    {
-        ROS_WARN("%s",ex.what());
-        ros::Duration(1.0).sleep();
-    }
+    tag_detections_sub = _nh->subscribe("/tag_detections", 1, &TRUE_RT_TAG::tag_detections_cb, this);
 
     // World's front left up coordinate system to tag's right up depth coordinates
     tf2::Quaternion x90(DEG2RAD(0.0), DEG2RAD(90.0), DEG2RAD(0.0));
@@ -38,6 +21,48 @@ TRUE_RT_TAG::TRUE_RT_TAG(ros::NodeHandle* nh, ros::Rate rate): _nh(nh), _rate(ra
 
     orientation_correction.setRotation(orientation);
     orientation_correction.setOrigin(tf2::Vector3(0.0, 0.0, 0.0));
+
+    if(loadTagConfig(tag_config_name))
+        tag_config_loaded = true;
+
+    // Initialize TF broadcaster
+    if(initTFBroadcaster())
+        tf_broadcaster_initialized = true;
+
+
+    // Find tfs to find transform between camera mount frame and camera optical frame
+    tf2_ros::Buffer tfBuffer;
+    tf2_ros::TransformListener tfListener(tfBuffer);
+    try
+    {
+        cam2optical_geo = tfBuffer.lookupTransform(camera_frame_name, image_frame_name, ros::Time(0), ros::Duration(10));
+        camera_transform_found = true;
+    }
+    catch(tf2::TransformException &ex)
+    {
+        ROS_WARN("%s",ex.what());
+        ros::Duration(1.0).sleep();
+    }
+}
+
+bool TRUE_RT_TAG::initTFBroadcaster()
+{
+    for(size_t tf = 0; tf < tag_rts._transforms.size(); tf++)
+    {
+        tf2_ros::TransformBroadcaster tf_broadcaster;
+        tf_broadcasters.push_back(tf_broadcaster);
+
+        geometry_msgs::TransformStamped tag_transform;
+
+        tag_transform.header.frame_id = "world";
+        tag_transform.child_frame_id = "wTt"+ std::to_string(tag_rts._idxs.at(tf));
+
+        tag_transform.transform = tf2::toMsg(tag_rts._transforms.at(tf));
+        
+        tag_transforms.push_back(tag_transform);
+    }
+
+    return true;
 }
 
 bool TRUE_RT_TAG::loadTagConfig(std::string file_name)
@@ -75,6 +100,7 @@ bool TRUE_RT_TAG::loadTagConfig(std::string file_name)
 
         tag_rt.setOrigin(tf2::Vector3(location.x, location.y, location.z));
         tag_rt.setRotation(heading_quat);
+        tag_rt = tag_rt*orientation_correction;
 
         tag_rts._idxs.push_back(tag_rt_idx);
         tag_rts._sizes.push_back(tag_rt_size);
@@ -92,6 +118,22 @@ void TRUE_RT_TAG::tag_detections_cb(apriltag_ros::AprilTagDetectionArray msg)
         tag_detection = msg;
     else
         ROS_WARN("There is no detected tags...");
+}
+
+bool TRUE_RT_TAG::broadcastTagTF()
+{
+    if(!tf_broadcaster_initialized)
+    {
+        ROS_ERROR("TF broadcaster not initialized...");
+        return false;
+    }
+
+    ros::Time now = ros::Time::now();
+    for(size_t broadcaster = 0; broadcaster < tf_broadcasters.size(); broadcaster++)
+    {
+        tag_transforms.at(broadcaster).header.stamp = now;
+        tf_broadcasters.at(broadcaster).sendTransform(tag_transforms.at(broadcaster));
+    }
 }
 
 bool TRUE_RT_TAG::getTrueRT()
@@ -139,10 +181,10 @@ bool TRUE_RT_TAG::getTrueRT()
 
     tf2::Transform global2tag_tf = tag_rts._transforms.at(config_idx);
 
-    geometry_msgs::PoseStamped global2tag_geo;
-    tf2::toMsg(global2tag_tf, global2tag_geo.pose);
-    global2tag_geo.header.stamp = tag_detection.header.stamp;
-    true_rt_tag_pub.publish(global2tag_geo);
+    // geometry_msgs::PoseStamped global2tag_geo;
+    // tf2::toMsg(global2tag_tf, global2tag_geo.pose);
+    // global2tag_geo.header.stamp = tag_detection.header.stamp;
+    // true_rt_tag_pub.publish(global2tag_geo);
 
     //? Calculate transformation of camera wrt global frame
     // Get transformation of camera to closest tag
@@ -153,12 +195,12 @@ bool TRUE_RT_TAG::getTrueRT()
     tf2::fromMsg(cam2optical_geo.transform, cam2optical_tf);
 
     geometry_msgs::Pose orientation_pose;
-    tf2::toMsg(orientation_correction, orientation_pose);
-    ROS_INFO_STREAM(orientation_pose);
+    // tf2::toMsg(orientation_correction, orientation_pose);
+    // ROS_INFO_STREAM(orientation_pose);
 
     // optical2tag_tf.inverse()*cam2optical_tf.inverse(); //? cam from {tag}
     // global2tag_tf*orientation_correction //? tag from {world}
-    tf2::Transform global2_cam_tf = global2tag_tf*orientation_correction*optical2tag_tf.inverse()*cam2optical_tf.inverse();
+    tf2::Transform global2_cam_tf = global2tag_tf*optical2tag_tf.inverse()*cam2optical_tf.inverse();
 
 
     geometry_msgs::PoseStamped global2cam_pose;

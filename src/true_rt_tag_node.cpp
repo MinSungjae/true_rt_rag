@@ -15,6 +15,7 @@ int main(int argc, char** argv)
         ros::spinOnce();
 
         rt_tag.getTrueRT();
+        rt_tag.broadcastTagTF();
 
         rate.sleep();
     }
