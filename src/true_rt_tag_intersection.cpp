@@ -166,6 +166,7 @@ bool TRUE_RT_TAG::getTrueRT()
         return false;
     }
 
+    
     // Selecting minimum distance tag to compute ground truth pose
     //? With only localization Tag environment
     std::vector<double> dist_to_tag;
@@ -182,7 +183,82 @@ bool TRUE_RT_TAG::getTrueRT()
 
     int32_t id = tag_detection.detections.at(min_idx).id.at(0);
 
-    //? Calculate transformation of camera wrt global frame
+    //! With Tag-ed environment for multi-purpose
+    // int reference_tag = -99;
+    // int detection_tag = -99;
+    // double min_dist2tag = 0.0;
+
+    // std::vector<int> sorted_detections;
+    // for(size_t detection = 0; detection < tag_detection.detections.size(); detection++)
+    //     sorted_detections.push_back(tag_detection.detections.at(detection).id.at(0));
+
+    // std::vector<int> sorted_true_tags(tag_rts._idxs);
+    // sorted_true_tags = tag_rts._idxs;
+
+    // std::sort(sorted_detections.begin(), sorted_detections.end());
+    // std::sort(sorted_true_tags.begin(), sorted_true_tags.end());
+
+    // std::vector<int> intersection; //sorted_detections.size()+sorted_true_tags.size() //std::vector<int>::iterator it = 
+    // std::set_intersection(sorted_detections.begin(), sorted_detections.end(),
+    //                         sorted_true_tags.begin(), sorted_true_tags.end(),
+    //                         std::back_inserter(intersection));
+
+    // if(intersection.size() == 0)
+    //     return false;
+    // else
+    // {
+    //     std::vector<double> dist_to_tag;
+    //     for (int inter: intersection)
+    //     {
+    //         int tag_idx = 0;
+    //         for(tag_idx; tag_idx < tag_detection.detections.size(); tag_idx++)
+    //             if(tag_detection.detections.at(tag_idx).id.at(0) == inter)
+    //                 break;
+
+
+    //         dist_to_tag.push_back(sqrt(
+    //             pow(tag_detection.detections.at(tag_idx).pose.pose.pose.position.x, 2) + 
+    //             pow(tag_detection.detections.at(tag_idx).pose.pose.pose.position.y, 2) +
+    //             pow(tag_detection.detections.at(tag_idx).pose.pose.pose.position.z, 2)));
+    //     }
+        
+    //     std::vector<double>::iterator min = std::min_element(dist_to_tag.begin(), dist_to_tag.end());
+
+    //     int32_t min_idx = std::distance(dist_to_tag.begin(), min);
+    //     min_dist2tag = *min;
+
+    //     // int tag = 0;
+    //     // for(tag; tag < tag_detection.detections.size(); tag++)
+    //     //     if(tag_detection.detections.at(tag).id.at(0) == intersection.at(min_idx))
+    //     //     {
+    //     //         ROS_INFO_STREAM("Intersection tag found at " << tag);
+    //     //         break;
+    //     //     }
+    //     // reference_tag = std::distance(tag_rts._idxs.begin(), std::find(tag_rts._idxs.begin(), tag_rts._idxs.end(), intersection.at(min_idx)));
+    //     reference_tag = intersection.at(min_idx);
+    //     ROS_ERROR("FUCKED_HERE!");
+    //     det
+    // }
+
+    // ROS_INFO_STREAM("Tag " << reference_tag << " at dist" << min_dist2tag);
+
+    // // Find a ground truth RT wrt {WORLD} of identified tag
+    // int config_idx = - 99;
+    // config_idx = std::distance(tag_rts._idxs.begin(), std::find(tag_rts._idxs.begin(), tag_rts._idxs.end(), reference_tag));
+    // ROS_INFO_STREAM("Tag config found at " << config_idx);
+
+    // tf2::Transform global2tag_tf = tag_rts._transforms.at(config_idx);
+
+    // // geometry_msgs::PoseStamped global2tag_geo;
+    // // tf2::toMsg(global2tag_tf, global2tag_geo.pose);
+    // // global2tag_geo.header.stamp = tag_detection.header.stamp;
+    // // true_rt_tag_pub.publish(global2tag_geo);
+
+    // //? Calculate transformation of camera wrt global frame
+    // // Get transformation of camera to closest tag
+    // geometry_msgs::Pose cam2tag_pose = tag_detection.detections.at(detection_tag).pose.pose.pose;
+    // tf2::Transform optical2tag_tf;
+    // tf2::fromMsg(cam2tag_pose, optical2tag_tf);
     ROS_INFO_STREAM("Tag " << id << " at dist" << min_dist);
 
     // Find a ground truth RT wrt {WORLD} of identified tag
@@ -192,11 +268,10 @@ bool TRUE_RT_TAG::getTrueRT()
 
     tf2::Transform global2tag_tf = tag_rts._transforms.at(config_idx);
 
-    geometry_msgs::PoseStamped global2tag_geo;
-    tf2::toMsg(global2tag_tf, global2tag_geo.pose);
-    global2tag_geo.header.frame_id = "world";
-    global2tag_geo.header.stamp = tag_detection.header.stamp;
-    true_rt_tag_pub.publish(global2tag_geo);
+    // geometry_msgs::PoseStamped global2tag_geo;
+    // tf2::toMsg(global2tag_tf, global2tag_geo.pose);
+    // global2tag_geo.header.stamp = tag_detection.header.stamp;
+    // true_rt_tag_pub.publish(global2tag_geo);
 
     //? Calculate transformation of camera wrt global frame
     // Get transformation of camera to closest tag

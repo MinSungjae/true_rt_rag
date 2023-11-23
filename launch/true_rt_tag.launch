@@ -1,13 +1,17 @@
 <launch>
     <arg name="tag_file_name" default="n1_room117_v1"/>
 
+    <arg name="camera_name" default="camera"/>
+    <arg name="image_topic" default="color/image_raw"/>
+
     <arg name="world_frame_name" default="world"/>
     <arg name="camera_frame_name" default="camera_link"/>
     <arg name="image_frame_name" default="camera_color_optical_frame"/>
 
     <arg name="with_apriltag_ros" default="false"/>
-    <arg name="camera_name" default="camera"/>
-    <arg name="image_topic" default="color/image_raw"/>
+    <arg name="with_visualization" default="true"/>
+
+    
 
     <group if="$(arg with_apriltag_ros)">
         <include file="$(find apriltag_ros)/launch/continuous_detection.launch">
@@ -22,5 +26,9 @@
         <param name="camera_frame_name" value="$(arg camera_frame_name)"/>
         <param name="image_frame_name" value="$(arg image_frame_name)"/>
     </node>
+
+    <group if="$(arg with_visualization)">
+        <node name="true_rt_tag_visualization" pkg="rviz" type="rviz" args="-d $(find true_rt_tag)/rviz/rviz_config.rviz"/>
+    </group>
 
 </launch>
