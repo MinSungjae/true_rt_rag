@@ -1,6 +1,6 @@
 # true_rt_tag
 #### Localize camera frame with respect to world frame with known transformation of tag's w.r.t. world.
-It publishes <geometry_msgs::PoseStamped> topic named with exactly same with camera_link argument in launch file
+It publishes <geometry_msgs::PoseStamped> topic named with exactly same with the "camera_frame_name" argument in launch file
 
 
 ## Dependencies
