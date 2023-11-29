@@ -1,4 +1,7 @@
 # true_rt_tag
+#### Localize camera frame with respect to world frame with known transformation of tag's w.r.t. world.
+It publishes <geometry_msgs::PoseStamped> topic named with exactly same with camera_link argument in launch file
+
 
 ## Dependencies
 
@@ -82,7 +85,7 @@ TAG_TRUE_RT:
 Because we assume that Tags will be on the wall, theta and phi are fixed to constant.
 You have to define all tags, with size, X-Y-Z position, and psi(heading angle).
 Direction angle psi is defined as 0 when facing the X-axis of the world coordinate system and follows right-hand rules.
-Default coordinate system is defined as X(front), Y(left), and Z(up).
+Default coordinate system in ROS is defined as X(front), Y(left), and Z(up).
 
 You can define your own Tag configuration file to test your robot in any environment.
 Just make a new file with the same format and define a config that matches your environment.
@@ -103,7 +106,7 @@ image_frame_name          // Optical frame of image
 tag_file_name             // Tag config file name
 ```
 Camera frame have to be broadcasted w.r.t. base_link in your TF managing package.
-Also, TF of RealSense's internal transformation, for example camera_mount2camera_color_optical_frame, can be published with URDF of RealSense and robot state publisher.
+Also, TF of RealSense's internal transformation, for example camera_mount2camera_color_optical_frame, can be published with URDF of RealSense and robot state publisher. (Hint! Please carefully check True RT Tag launch file.)
 
 If you want to launch with your own environment tag configuration file, you can launch with
 ```

@@ -225,13 +225,13 @@ bool TRUE_RT_TAG::getTrueRT()
     geometry_msgs::PoseStamped global2cam_pose;
     tf2::toMsg(global2_cam_tf, global2cam_pose.pose);
     global2cam_pose.header.stamp = tag_detection.header.stamp;
-    global2cam_pose.header.frame_id = "world";
+    global2cam_pose.header.frame_id = world_frame_name; //"world";
     global_tag_pose_pub.publish(global2cam_pose);
 
     if(broadcast_world2cam_tf)
     {
         geometry_msgs::TransformStamped global2_cam_geo;
-        global2_cam_geo.header.frame_id = "world";
+        global2_cam_geo.header.frame_id = world_frame_name; //"world";
         global2_cam_geo.header.stamp = ros::Time::now();
         global2_cam_geo.child_frame_id = camera_frame_name;
         global2_cam_geo.transform.translation.x = global2cam_pose.pose.position.x;
