@@ -26,6 +26,12 @@ cd your_ws/
 catkin_make
 ```
 
+#### Who are suffering OpenCV dependency error while building True RT TAG with AprilTag
+Try install opencv3.2 library. You may have broken installation about OpenCV.
+```
+sudo apt install libopencv3.2
+```
+
 ## Usage
 
 Before starting, you have to configure the AprilTag ROS package to detect tags. </br>
@@ -76,6 +82,7 @@ TAG_TRUE_RT:
 Because we assume that Tags will be on the wall, theta and phi are fixed to constant.
 You have to define all tags, with size, X-Y-Z position, and psi(heading angle).
 Direction angle psi is defined as 0 when facing the X-axis of the world coordinate system and follows right-hand rules.
+Default coordinate system is defined as X(front), Y(left), and Z(up).
 
 You can define your own Tag configuration file to test your robot in any environment.
 Just make a new file with the same format and define a config that matches your environment.
@@ -89,11 +96,14 @@ roslaunch true_rt_tag true_rt_tag.launch
 
 also, you can modify the launch argument below </br>
 ```
-world_frame_name
-camera_frame_name
-image_frame_name
-tag_file_name
+broadcast_world2cam_tf    // True when only testing standalone.
+world_frame_name          //  World frame name
+camera_frame_name         // Camera's mount frame
+image_frame_name          // Optical frame of image
+tag_file_name             // Tag config file name
 ```
+Camera frame have to be broadcasted w.r.t. base_link in your TF managing package.
+Also, TF of RealSense's internal transformation, for example camera_mount2camera_color_optical_frame, can be published with URDF of RealSense and robot state publisher.
 
 If you want to launch with your own environment tag configuration file, you can launch with
 ```

@@ -8,6 +8,7 @@ TRUE_RT_TAG::TRUE_RT_TAG(ros::NodeHandle* nh, ros::Rate rate): _nh(nh), _rate(ra
     _nh->getParam(ros::this_node::getName()+ "/world_frame_name", world_frame_name);
     _nh->getParam(ros::this_node::getName()+ "/camera_frame_name", camera_frame_name);
     _nh->getParam(ros::this_node::getName()+ "/image_frame_name", image_frame_name);
+    _nh->getParam(ros::this_node::getName()+ "/broadcast_world2cam_tf", broadcast_world2cam_tf);
 
     true_rt_tag_pub = _nh->advertise<geometry_msgs::PoseStamped>("true_rt_tag_pose", 1);
     global_tag_pose_pub = _nh->advertise<geometry_msgs::PoseStamped>(camera_frame_name, 1);
@@ -82,30 +83,41 @@ bool TRUE_RT_TAG::loadTagConfig(std::string file_name)
 
     }
 
+    ROS_INFO_STREAM(node["TAG_TRUE_RT"]["TAGS"].size() << " configs are found");
+    
     for(size_t tag = 0; tag < node["TAG_TRUE_RT"]["TAGS"].size(); tag++)
     {
-        int32_t tag_rt_idx = node["TAG_TRUE_RT"]["TAGS"][tag][0].as<int32_t>();
-        double tag_rt_size = node["TAG_TRUE_RT"]["TAGS"][tag][1].as<double>();
+        try
+        {
+            int32_t tag_rt_idx = node["TAG_TRUE_RT"]["TAGS"][tag][0].as<int32_t>();
+            double tag_rt_size = node["TAG_TRUE_RT"]["TAGS"][tag][1].as<double>();
 
-        tf2::Transform tag_rt;
-        geometry_msgs::Point location;
-        location.x = node["TAG_TRUE_RT"]["TAGS"][tag][2].as<double>();
-        location.y = node["TAG_TRUE_RT"]["TAGS"][tag][3].as<double>();
-        location.z = node["TAG_TRUE_RT"]["TAGS"][tag][4].as<double>();
+            tf2::Transform tag_rt;
+            geometry_msgs::Point location;
+            location.x = node["TAG_TRUE_RT"]["TAGS"][tag][2].as<double>();
+            location.y = node["TAG_TRUE_RT"]["TAGS"][tag][3].as<double>();
+            location.z = node["TAG_TRUE_RT"]["TAGS"][tag][4].as<double>();
 
-        double heading = node["TAG_TRUE_RT"]["TAGS"][tag][5].as<double>();
-        tf2::Quaternion heading_quat;
-        heading_quat.setRotation(tf2::Vector3(0.0, 0.0, 1.0), DEG2RAD(heading));
+            double heading = node["TAG_TRUE_RT"]["TAGS"][tag][5].as<double>();
+            tf2::Quaternion heading_quat;
+            heading_quat.setRotation(tf2::Vector3(0.0, 0.0, 1.0), DEG2RAD(heading));
 
-        tag_rt.setOrigin(tf2::Vector3(location.x, location.y, location.z));
-        tag_rt.setRotation(heading_quat);
-        tag_rt = tag_rt*orientation_correction;
+            tag_rt.setOrigin(tf2::Vector3(location.x, location.y, location.z));
+            tag_rt.setRotation(heading_quat);
+            tag_rt = tag_rt*orientation_correction;
 
-        tag_rts._idxs.push_back(tag_rt_idx);
-        tag_rts._sizes.push_back(tag_rt_size);
-        tag_rts._transforms.push_back(tag_rt);
+            tag_rts._idxs.push_back(tag_rt_idx);
+            tag_rts._sizes.push_back(tag_rt_size);
+            tag_rts._transforms.push_back(tag_rt);
 
-        ROS_INFO_STREAM("Tag info about " << tag_rt_idx << " is loaded successfully");
+            ROS_INFO_STREAM("Tag info about " << tag_rt_idx << " is loaded successfully.");
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            ROS_ERROR_STREAM("Failed to load info about tag config index: " << tag+1);
+            ROS_ERROR_STREAM("Please check formating or typo in file: " << file_name);
+        }
     }
 
     return true;
@@ -216,17 +228,20 @@ bool TRUE_RT_TAG::getTrueRT()
     global2cam_pose.header.frame_id = "world";
     global_tag_pose_pub.publish(global2cam_pose);
 
-    geometry_msgs::TransformStamped global2_cam_geo;
-    global2_cam_geo.header.frame_id = "world";
-    global2_cam_geo.header.stamp = ros::Time::now();
-    global2_cam_geo.child_frame_id = camera_frame_name;
-    global2_cam_geo.transform.translation.x = global2cam_pose.pose.position.x;
-    global2_cam_geo.transform.translation.y = global2cam_pose.pose.position.y;
-    global2_cam_geo.transform.translation.z = global2cam_pose.pose.position.z;
-    global2_cam_geo.transform.rotation = global2cam_pose.pose.orientation;
-    true_rt_tf_broadcaster.sendTransform(global2_cam_geo);
+    if(broadcast_world2cam_tf)
+    {
+        geometry_msgs::TransformStamped global2_cam_geo;
+        global2_cam_geo.header.frame_id = "world";
+        global2_cam_geo.header.stamp = ros::Time::now();
+        global2_cam_geo.child_frame_id = camera_frame_name;
+        global2_cam_geo.transform.translation.x = global2cam_pose.pose.position.x;
+        global2_cam_geo.transform.translation.y = global2cam_pose.pose.position.y;
+        global2_cam_geo.transform.translation.z = global2cam_pose.pose.position.z;
+        global2_cam_geo.transform.rotation = global2cam_pose.pose.orientation;
+        true_rt_tf_broadcaster.sendTransform(global2_cam_geo);
+    }
 
-    ROS_INFO_STREAM("Global pose of camera: " << global2cam_pose);
+    ROS_INFO_STREAM("Global pose of camera: " << global2cam_pose.pose);
 
     return true;
 }

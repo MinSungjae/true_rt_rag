@@ -59,6 +59,7 @@ protected:
     std::string world_frame_name, camera_frame_name, image_frame_name;
     geometry_msgs::TransformStamped cam2optical_geo;
     tf2::Transform cam2optical_tf;
+    bool broadcast_world2cam_tf = false;
 
     apriltag_ros::AprilTagDetectionArray tag_detection;
     geometry_msgs::PoseStamped true_rt_tag;
