@@ -44,6 +44,11 @@ standalone_tags:
     {id: 273, size: 0.161, name: TAG273},
     {id: 274, size: 0.161, name: TAG274},
     {id: 275, size: 0.161, name: TAG275},
+    {id: 276, size: 0.161, name: TAG276},
+    {id: 277, size: 0.161, name: TAG277},
+    {id: 278, size: 0.161, name: TAG278},
+    {id: 279, size: 0.161, name: TAG279},
+    {id: 280, size: 0.161, name: TAG280},
   ]
 # ## Tag bundle definitions
 # ### Remarks

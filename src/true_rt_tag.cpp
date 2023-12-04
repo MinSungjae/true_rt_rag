@@ -5,6 +5,7 @@ TRUE_RT_TAG::TRUE_RT_TAG(ros::NodeHandle* nh, ros::Rate rate): _nh(nh), _rate(ra
     package_path = ros::package::getPath("true_rt_tag");
 
     _nh->getParam(ros::this_node::getName()+ "/tag_config_name", tag_config_name);
+    _nh->getParam(ros::this_node::getName()+ "/threshold_dist", threshold_dist);
     _nh->getParam(ros::this_node::getName()+ "/world_frame_name", world_frame_name);
     _nh->getParam(ros::this_node::getName()+ "/camera_frame_name", camera_frame_name);
     _nh->getParam(ros::this_node::getName()+ "/image_frame_name", image_frame_name);
@@ -55,7 +56,7 @@ bool TRUE_RT_TAG::initTFBroadcaster()
 
         geometry_msgs::TransformStamped tag_transform;
 
-        tag_transform.header.frame_id = "world";
+        tag_transform.header.frame_id = world_frame_name;
         tag_transform.child_frame_id = "wTt"+ std::to_string(tag_rts._idxs.at(tf));
 
         tag_transform.transform = tf2::toMsg(tag_rts._transforms.at(tf));
@@ -194,11 +195,18 @@ bool TRUE_RT_TAG::getTrueRT()
 
     int32_t id = tag_detection.detections.at(min_idx).id.at(0);
 
+    if(min_dist > threshold_dist)
+    {
+        ROS_INFO_STREAM("Detected tag with minimum distance is to far to estimate RT. Dist: " << min_dist << ", but threshold: "<< threshold_dist);
+        ROS_INFO("Drop current localization...");
+        return false;
+    }
+
     //? Calculate transformation of camera wrt global frame
     ROS_INFO_STREAM("Tag " << id << " at dist" << min_dist);
 
     // Find a ground truth RT wrt {WORLD} of identified tag
-    int config_idx = - 99;
+    int config_idx = -99;
     config_idx = std::distance(tag_rts._idxs.begin(), std::find(tag_rts._idxs.begin(), tag_rts._idxs.end(), id));
     ROS_INFO_STREAM("Tag config found at " << config_idx);
 
@@ -206,7 +214,7 @@ bool TRUE_RT_TAG::getTrueRT()
 
     geometry_msgs::PoseStamped global2tag_geo;
     tf2::toMsg(global2tag_tf, global2tag_geo.pose);
-    global2tag_geo.header.frame_id = "world";
+    global2tag_geo.header.frame_id = world_frame_name;
     global2tag_geo.header.stamp = tag_detection.header.stamp;
     true_rt_tag_pub.publish(global2tag_geo);
 
