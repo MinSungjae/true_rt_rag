@@ -201,10 +201,10 @@ bool TRUE_RT_TAG::getTrueRT()
         ROS_INFO("Drop current localization...");
         return false;
     }
+    else
+        ROS_INFO_STREAM("Tag " << id << " at dist" << min_dist);
 
     //? Calculate transformation of camera wrt global frame
-    ROS_INFO_STREAM("Tag " << id << " at dist" << min_dist);
-
     // Find a ground truth RT wrt {WORLD} of identified tag
     int config_idx = -99;
     config_idx = std::distance(tag_rts._idxs.begin(), std::find(tag_rts._idxs.begin(), tag_rts._idxs.end(), id));
