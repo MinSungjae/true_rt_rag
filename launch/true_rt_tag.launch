@@ -9,7 +9,7 @@
     <arg name="camera_frame_name" default="camera_link"/>
     <arg name="image_frame_name" default="camera_color_optical_frame"/>
 
-    <arg name="with_apriltag_ros" default="false"/>
+    <arg name="with_apriltag_ros" default="true"/>
     <arg name="with_visualization" default="true"/>
     <arg name="with_realsense_tf" default="false"/>
 

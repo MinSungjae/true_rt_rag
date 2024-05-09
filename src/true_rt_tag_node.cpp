@@ -6,16 +6,23 @@ int main(int argc, char** argv)
 
     ros::NodeHandle nh;
 
-    ros::Rate rate(10);
+    ros::Rate rate(30);
 
     TRUE_RT_TAG rt_tag(&nh, rate);
 
+    int counter = 0;
     while(ros::ok())
     {
         ros::spinOnce();
 
         rt_tag.getTrueRT();
-        rt_tag.broadcastTagTF();
+
+        if(counter++ >= 30)
+        {
+            rt_tag.broadcastTagTF();
+            counter = 0;
+        }
+
 
         rate.sleep();
     }

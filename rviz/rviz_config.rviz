@@ -59,7 +59,19 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        map:
+        TAG256:
+          Value: true
+        base_link:
+          Value: true
+        camera_color_frame:
+          Value: true
+        camera_color_optical_frame:
+          Value: true
+        camera_depth_frame:
+          Value: true
+        camera_depth_optical_frame:
+          Value: true
+        camera_link:
           Value: true
         wTt256:
           Value: true
@@ -75,41 +87,7 @@ Visualization Manager:
           Value: true
         wTt262:
           Value: true
-        wTt263:
-          Value: true
-        wTt264:
-          Value: true
-        wTt265:
-          Value: true
-        wTt266:
-          Value: true
-        wTt267:
-          Value: true
-        wTt268:
-          Value: true
-        wTt269:
-          Value: true
-        wTt270:
-          Value: true
-        wTt271:
-          Value: true
-        wTt272:
-          Value: true
-        wTt273:
-          Value: true
-        wTt274:
-          Value: true
-        wTt275:
-          Value: true
-        wTt276:
-          Value: true
-        wTt277:
-          Value: true
-        wTt278:
-          Value: true
-        wTt279:
-          Value: true
-        wTt280:
+        world:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -117,7 +95,16 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
+        world:
+          base_link:
+            camera_link:
+              camera_color_frame:
+                camera_color_optical_frame:
+                  TAG256:
+                    {}
+              camera_depth_frame:
+                camera_depth_optical_frame:
+                  {}
           wTt256:
             {}
           wTt257:
@@ -131,42 +118,6 @@ Visualization Manager:
           wTt261:
             {}
           wTt262:
-            {}
-          wTt263:
-            {}
-          wTt264:
-            {}
-          wTt265:
-            {}
-          wTt266:
-            {}
-          wTt267:
-            {}
-          wTt268:
-            {}
-          wTt269:
-            {}
-          wTt270:
-            {}
-          wTt271:
-            {}
-          wTt272:
-            {}
-          wTt273:
-            {}
-          wTt274:
-            {}
-          wTt275:
-            {}
-          wTt276:
-            {}
-          wTt277:
-            {}
-          wTt278:
-            {}
-          wTt279:
-            {}
-          wTt280:
             {}
       Update Interval: 0
       Value: true
@@ -204,7 +155,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
