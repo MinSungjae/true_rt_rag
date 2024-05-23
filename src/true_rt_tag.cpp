@@ -159,7 +159,7 @@ bool TRUE_RT_TAG::getTrueRT()
 {
     if(tag_detection.header.stamp < ros::Time::now() - ros::Duration(1.0))
     {
-        ROS_ERROR("Detection data are out-dated!!!");
+        ROS_INFO("Tag does not found... skip loop");
         return false;
     }
 

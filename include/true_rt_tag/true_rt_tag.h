@@ -36,7 +36,7 @@ private:
 
     std::string package_path;
     std::string tag_config_name;
-    double threshold_dist = 1.0;
+    double threshold_dist = 1.5;
 
     bool loadTagConfig(std::string file_name);
     bool initTFBroadcaster();
