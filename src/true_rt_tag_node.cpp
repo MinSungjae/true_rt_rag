@@ -19,7 +19,8 @@ int main(int argc, char** argv)
 
         if(counter++ >= 30)
         {
-            rt_tag.broadcastTagTF();
+            if(!rt_tag.broadcastTagTF())
+                ROS_INFO("Not initialized...!");
             counter = 0;
         }
 

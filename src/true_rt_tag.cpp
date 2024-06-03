@@ -45,6 +45,8 @@ TRUE_RT_TAG::TRUE_RT_TAG(ros::NodeHandle* nh, ros::Rate rate): _nh(nh), _rate(ra
         ROS_WARN("%s",ex.what());
         ros::Duration(1.0).sleep();
     }
+
+    tag_detection.detections.clear();
 }
 
 bool TRUE_RT_TAG::initTFBroadcaster()
@@ -120,7 +122,7 @@ bool TRUE_RT_TAG::loadTagConfig(std::string file_name)
             ROS_ERROR_STREAM("Please check formating or typo in file: " << file_name);
         }
     }
-
+    ROS_INFO_STREAM("All " << node["TAG_TRUE_RT"]["TAGS"].size() <<  " tags are successfully loaded!");
     return true;
 }
 
@@ -153,6 +155,7 @@ bool TRUE_RT_TAG::broadcastTagTF()
         tag_transforms.at(broadcaster).header.stamp = now;
         tf_broadcasters.at(broadcaster).sendTransform(tag_transforms.at(broadcaster));
     }
+    return true;
 }
 
 bool TRUE_RT_TAG::getTrueRT()
@@ -183,10 +186,15 @@ bool TRUE_RT_TAG::getTrueRT()
     //? With only localization Tag environment
     std::vector<double> dist_to_tag;
     for(int32_t idx = 0; idx < tag_detection.detections.size(); idx++)
+    {
         dist_to_tag.push_back(sqrt(
             pow(tag_detection.detections.at(idx).pose.pose.pose.position.x, 2) + 
             pow(tag_detection.detections.at(idx).pose.pose.pose.position.y, 2) +
             pow(tag_detection.detections.at(idx).pose.pose.pose.position.z, 2)));
+    }
+
+    if(dist_to_tag.size() == 0)
+        return false;
     
     std::vector<double>::iterator min = std::min_element(dist_to_tag.begin(), dist_to_tag.end());
 
