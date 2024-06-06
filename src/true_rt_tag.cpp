@@ -122,7 +122,9 @@ bool TRUE_RT_TAG::loadTagConfig(std::string file_name)
             ROS_ERROR_STREAM("Please check formating or typo in file: " << file_name);
         }
     }
+
     ROS_INFO_STREAM("All " << node["TAG_TRUE_RT"]["TAGS"].size() <<  " tags are successfully loaded!");
+
     return true;
 }
 
@@ -155,6 +157,7 @@ bool TRUE_RT_TAG::broadcastTagTF()
         tag_transforms.at(broadcaster).header.stamp = now;
         tf_broadcasters.at(broadcaster).sendTransform(tag_transforms.at(broadcaster));
     }
+    
     return true;
 }
 
